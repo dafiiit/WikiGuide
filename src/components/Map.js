@@ -8,6 +8,7 @@ import 'leaflet/dist/leaflet.css';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import { useCallback } from 'react'; 
+import { useTranslation } from 'react-i18next'; 
 
 
 // Set up the default icon
@@ -31,6 +32,8 @@ const greenIcon = new L.Icon({
 });
 
 const WikipediaMarker = ({ article, onReadMore }) => {
+  const { t } = useTranslation();
+
   return (
     <Marker position={[article.lat, article.lon]} icon={greenIcon}>
       <Popup>
@@ -42,10 +45,11 @@ const WikipediaMarker = ({ article, onReadMore }) => {
   );
 };
 
-const MapComponent = ({ userLocation, onReadMore, onLocationFound, centerMap}) => {
+const MapComponent = ({ userLocation, onReadMore, onLocationFound, centerMap, language }) => {
   const map = useMap();
   const [wikiArticles, setWikiArticles] = useState([]);
   const [isInitialLoad, setIsInitialLoad] = useState(true); 
+  const { t } = useTranslation();
   
   useEffect(() => {
     if (centerMap) {
@@ -69,7 +73,7 @@ const MapComponent = ({ userLocation, onReadMore, onLocationFound, centerMap}) =
 
   const fetchWikipediaArticles = async (bounds) => {
     const { _southWest, _northEast } = bounds;
-    const url = `https://en.wikipedia.org/w/api.php?action=query&list=geosearch&gsradius=10000&gscoord=${_northEast.lat}|${_southWest.lng}&gslimit=50&format=json&origin=*`;
+    const url = `https://${language}.wikipedia.org/w/api.php?action=query&list=geosearch&gsradius=10000&gscoord=${_northEast.lat}|${_southWest.lng}&gslimit=50&format=json&origin=*&utf8=1&ll=${_northEast.lat}|${_southWest.lng}&gsnamespace=0`;
 
     try {
       const response = await fetch(url);
@@ -82,7 +86,8 @@ const MapComponent = ({ userLocation, onReadMore, onLocationFound, centerMap}) =
       }));
 
       const articlesWithSummaries = await Promise.all(articles.map(async (article) => {
-        const summaryUrl = `https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&titles=${encodeURIComponent(article.title)}&format=json&origin=*`;
+        const summaryUrl = `https://${language}.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&titles=${encodeURIComponent(article.title)}&format=json&origin=*&utf8=1&ll=${_northEast.lat}|${_southWest.lng}`;
+
         const summaryResponse = await fetch(summaryUrl);
         const summaryData = await summaryResponse.json();
         const pages = summaryData.query.pages;
@@ -103,17 +108,24 @@ const MapComponent = ({ userLocation, onReadMore, onLocationFound, centerMap}) =
     },
   });
 
+  useEffect(() => {
+    // Refetch articles when language changes
+    if (map) {
+      fetchWikipediaArticles(map.getBounds());
+    }
+  }, [language, map, fetchWikipediaArticles]);
+
   return (
     <>
       {userLocation && <Marker position={userLocation} />}
       {wikiArticles.map((article, index) => (
-        <WikipediaMarker key={index} article={article} onReadMore={onReadMore} />
+        <WikipediaMarker key={index} article={article} onReadMore={onReadMore} language={language}/>
       ))}
     </>
   );
 };
 
-const Map = ({ onReadMore, onLocationFound, centerMap }) => {
+const Map = ({ onReadMore, onLocationFound, centerMap, language}) => {
   const [userLocation, setUserLocation] = useState(null);
 
   useEffect(() => {
@@ -147,6 +159,7 @@ const Map = ({ onReadMore, onLocationFound, centerMap }) => {
             onReadMore={onReadMore} 
             onLocationFound={onLocationFound}
             centerMap={centerMap}
+            language={language}
           />
         </MapContainer>
       )}

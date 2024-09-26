@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Map as MapIcon, Settings, Search, ArrowLeft, FileText, Route, X, User, LogIn, Crosshair } from 'lucide-react';
 import Map from './Map'; // Import the Map component
 import { useCallback } from 'react'; 
+import { useTranslation } from 'react-i18next';
 
 const ModernUI = () => {
   const [currentPage, setCurrentPage] = useState('login');
@@ -28,6 +29,14 @@ const ModernUI = () => {
   const buttonHoverColor = isDarkMode ? 'hover:bg-teal-600' : 'hover:bg-teal-400';
   const [currentLocation, setCurrentLocation] = useState(null);
   const [centerMap, setCenterMap] = useState(null);
+  const [language, setLanguage] = useState('en'); 
+  const { t, i18n } = useTranslation(); 
+ 
+
+  const handleLanguageChange = useCallback((newLanguage) => {
+    setLanguage(newLanguage);
+    i18n.changeLanguage(newLanguage); // Change the language in i18next
+  }, [i18n]);
 
   const handleLocationFound = useCallback((location) => {
     setCurrentLocation(location);
@@ -108,18 +117,18 @@ const ModernUI = () => {
     if (!isLoggedIn && currentPage === 'login') {
       return (
         <div className={`flex-1 flex flex-col justify-center items-center p-6 ${textColor}`}>
-          <h2 className="text-2xl font-bold mb-4">{isSignUp ? 'Create Account' : 'Login'}</h2>
+          <h2 className="text-2xl font-bold mb-4">{isSignUp ? t('createAccount') : t('login')}</h2>
           <div className="w-full max-w-md space-y-4">
             <input
               type="email"
-              placeholder="Email"
+              placeholder={t('email')}
               value={userCredentials.email}
               onChange={(e) => handleCredentialsChange('email', e.target.value)}
               className={`w-full py-2 px-4 ${inputBgColor} rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 transition-all duration-300`}
             />
             <input
               type="password"
-              placeholder="Password"
+              placeholder={t('password')}
               value={userCredentials.password}
               onChange={(e) => handleCredentialsChange('password', e.target.value)}
               className={`w-full py-2 px-4 ${inputBgColor} rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 transition-all duration-300`}
@@ -128,13 +137,13 @@ const ModernUI = () => {
               onClick={isSignUp ? handleSignUp : handleLogin}
               className={`w-full py-2 ${buttonBgColor} ${textColor} rounded-lg ${buttonHoverColor} transition-colors duration-300`}
             >
-              {isSignUp ? 'Sign Up' : 'Login'}
+              {isSignUp ? t('signUp') : t('login')}
             </button>
             <button
               onClick={() => setIsSignUp(!isSignUp)}
               className={`w-full py-2 ${inputBgColor} ${textColor} rounded-lg hover:bg-opacity-70 transition-colors duration-300`}
             >
-              {isSignUp ? 'Already have an account? Login' : 'New user? Create account'}
+              {isSignUp ? t('alreadyHaveAccount') : t('newUser')}
             </button>
           </div>
         </div>
@@ -146,13 +155,13 @@ const ModernUI = () => {
       case 'map':
         return (
           <div className={`flex-1 flex flex-col p-6 ${textColor}`}>
-            <h2 className="text-2xl font-bold mb-4">Map</h2>
+            <h2 className="text-2xl font-bold mb-4">{t('map')}</h2>
             <div className="relative flex-1 flex flex-col">
               <div className="mb-4 flex items-center">
                 <div className="flex-grow mr-2">
                   <input
                     type="text"
-                    placeholder="Search locations..."
+                    placeholder={t('searchLocations')}
                     className={`w-full py-2 pl-10 pr-4 ${inputBgColor} rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 transition-all duration-300`}
                   />
                   <Search className="absolute left-3 top-2.5 text-gray-500" size={20} />
@@ -160,7 +169,7 @@ const ModernUI = () => {
                 <button
                   onClick={handleCenterMap}
                   className={`p-2 ${buttonBgColor} ${textColor} rounded-lg ${buttonHoverColor} transition-colors duration-300 flex items-center justify-center`}
-                  title="Focus on current location"
+                  title={t('focusOnCurrentLocation')}
                 >
                   <Crosshair size={20} />
                 </button>
@@ -170,6 +179,7 @@ const ModernUI = () => {
                   onReadMore={handleReadMore} 
                   onLocationFound={handleLocationFound}
                   centerMap={centerMap}
+                  language={language}
                 />
               </div>
             </div>
@@ -196,21 +206,30 @@ const ModernUI = () => {
       case 'settings':
         return (
           <div className={`flex-1 flex flex-col p-6 ${textColor}`}>
-            <h2 className="text-2xl font-bold mb-4">Settings</h2>
+            <h2 className="text-2xl font-bold mb-4">{t('settings')}</h2> {/* Übersetzung für "Settings" */}
             <div className={`${inputBgColor} p-4 rounded-lg mb-4`}>
-              <h3 className="text-xl font-semibold mb-2">User Profile</h3>
-              <p>Email: {userCredentials.email}</p>
+              <h3 className="text-xl font-semibold mb-2">{t('userProfile')}</h3> {/* Übersetzung für "User Profile" */}
+              <p>{t('email')}: {userCredentials.email}</p>
               <button
                 onClick={handleLogout}
                 className={`mt-2 py-2 px-4 ${buttonBgColor} ${textColor} rounded-lg ${buttonHoverColor} transition-colors duration-300`}
               >
-                Logout
+                {t('logout')} {/* Übersetzung für "Logout" */}
               </button>
+              <div className="mt-4">
+                <p>{t('language')}:</p> {/* Übersetzung für "Language" */}
+                <select onChange={(e) => handleLanguageChange(e.target.value)} value={language} className={`mt-2 py-2 px-4 ${buttonBgColor} ${textColor} rounded-lg ${buttonHoverColor} transition-colors duration-300`}>
+                  <option value="en">{t('english')}</option> {/* Übersetzung für "English" */}
+                  <option value="de">{t('german')}</option> {/* Übersetzung für "German" */}
+                  <option value="fr">{t('french')}</option> {/* Übersetzung für "French" */}
+                  {/* Weitere Sprachen hinzufügen */}
+                </select>
+              </div>
             </div>
             <div className="space-y-4">
               <label className="flex items-center space-x-2">
                 <input type="checkbox" className="form-checkbox text-teal-600" />
-                <span>Enable notifications</span>
+                <span>{t('enableNotifications')}</span> {/* Übersetzung für "Enable notifications" */}
               </label>
               <label className="flex items-center space-x-2">
                 <input 
@@ -219,7 +238,7 @@ const ModernUI = () => {
                   checked={isDarkMode}
                   onChange={() => setIsDarkMode(!isDarkMode)}
                 />
-                <span>Dark mode</span>
+                <span>{t('darkMode')}</span> {/* Übersetzung für "Dark mode" */}
               </label>
             </div>
           </div>
