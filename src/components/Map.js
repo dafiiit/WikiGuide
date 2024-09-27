@@ -39,7 +39,7 @@ const WikipediaMarker = ({ article, onReadMore }) => {
       <Popup>
         <h3>{article.title}</h3>
         <div dangerouslySetInnerHTML={{ __html: article.summary }} />
-        <button onClick={() => onReadMore(article)}>t('readMore')</button>
+        <button onClick={() => onReadMore(article)}>{t('readMore')}</button>
       </Popup>
     </Marker>
   );
