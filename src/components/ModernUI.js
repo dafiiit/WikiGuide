@@ -18,7 +18,7 @@ const ModernUI = () => {
   const [newArticle, setNewArticle] = useState({ heading: '', location: '', description: '', content: '' });
   const [fullArticle, setFullArticle] = useState(null);
   const addMenuRef = useRef(null);
-
+  
   const bgColor = isDarkMode 
     ? 'bg-gradient-to-br from-teal-900 to-green-950'
     : 'bg-gradient-to-br from-teal-400 to-green-700';
@@ -31,7 +31,12 @@ const ModernUI = () => {
   const [centerMap, setCenterMap] = useState(null);
   const [language, setLanguage] = useState('en'); 
   const { t, i18n } = useTranslation(); 
- 
+  const mapContainerRef = useRef(null);
+
+  const handleMapClick = useCallback((e) => {
+    // Verhindern Sie, dass der Klick auf die Karte den Vollbildmodus aktiviert
+    e.stopPropagation();
+  }, []);
 
   const handleLanguageChange = useCallback((newLanguage) => {
     setLanguage(newLanguage);
@@ -47,6 +52,18 @@ const ModernUI = () => {
       setCenterMap([...currentLocation]); // Create a new array to trigger re-render
     }
   }, [currentLocation]);
+
+  useEffect(() => {
+    const mapContainer = mapContainerRef.current;
+    if (mapContainer) {
+      mapContainer.addEventListener('click', handleMapClick);
+    }
+    return () => {
+      if (mapContainer) {
+        mapContainer.removeEventListener('click', handleMapClick);
+      }
+    };
+  }, [handleMapClick]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -169,7 +186,7 @@ const ModernUI = () => {
       case 'map':
         return (
           <div className={`flex-1 flex flex-col ${textColor}`}>
-            <div className={`fixed top-0 left-0 right-0 z-5 ${bgColor} p-6`}>
+            <div className={`sticky top-0 z-10 ${bgColor} p-6`}>
               <h2 className="text-2xl font-bold mb-4">{t('map')}</h2>
               <div className="flex items-center mb-4">
                 <div className="flex-grow mr-2 relative">
@@ -189,7 +206,7 @@ const ModernUI = () => {
                 </button>
               </div>
             </div>
-            <div className="flex-1 relative mt-32"> {/* Adjust this value based on the height of your fixed header */}
+            <div className="flex-1 relative" ref={mapContainerRef}> 
               <Map 
                 onReadMore={handleReadMore} 
                 onLocationFound={handleLocationFound}
