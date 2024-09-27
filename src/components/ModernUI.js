@@ -234,7 +234,7 @@ const ModernUI = () => {
       case 'map':
         return (
           <div className="flex flex-col h-full">
-            <div className={`${bgColor} p-4`}>
+            <div className={`${bgColor} p-4 relative z-10`}>
               <h2 className="text-2xl font-bold mb-4">{t('map')}</h2>
               <div className="flex items-center mb-4">
                 <div className="flex-grow mr-2 relative">
@@ -250,7 +250,7 @@ const ModernUI = () => {
                   />
                   <Search className="absolute left-3 top-2.5 text-gray-500" size={20} />
                   {searchSuggestions.length > 0 && (
-                    <div className={`absolute z-10 w-full mt-1 ${inputBgColor} rounded-lg shadow-lg`}>
+                    <div className={`absolute z-20 w-full mt-1 ${inputBgColor} rounded-lg shadow-lg`}>
                       {searchSuggestions.map((suggestion, index) => (
                         <div
                           key={index}
@@ -273,7 +273,7 @@ const ModernUI = () => {
                 </button>
               </div>
             </div>
-            <div className="flex-grow relative" ref={mapContainerRef}>
+            <div className="flex-grow relative z-0">
               <Map
                 onReadMore={handleReadMore}
                 onLocationFound={handleLocationFound}
