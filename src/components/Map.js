@@ -39,7 +39,7 @@ const WikipediaMarker = ({ article, onReadMore }) => {
       <Popup>
         <h3>{article.title}</h3>
         <div dangerouslySetInnerHTML={{ __html: article.summary }} />
-        <button onClick={() => onReadMore(article)}>Read more</button>
+        <button onClick={() => onReadMore(article)}>t('readMore')</button>
       </Popup>
     </Marker>
   );
@@ -48,7 +48,7 @@ const WikipediaMarker = ({ article, onReadMore }) => {
 const MapComponent = ({ userLocation, onReadMore, onLocationFound, centerMap, language }) => {
   const map = useMap();
   const [wikiArticles, setWikiArticles] = useState([]);
-  const [isInitialLoad, setIsInitialLoad] = useState(true); 
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const { t } = useTranslation();
   
   useEffect(() => {
@@ -65,15 +65,15 @@ const MapComponent = ({ userLocation, onReadMore, onLocationFound, centerMap, la
   }, [map, userLocation, onLocationFound]);
 
   useEffect(() => {
-    if (userLocation && isInitialLoad) { 
+    if (userLocation && isInitialLoad) {
       focusUserLocation();
-      setIsInitialLoad(false); 
+      setIsInitialLoad(false);
     }
   }, [userLocation, focusUserLocation, isInitialLoad]);
 
-  const fetchWikipediaArticles = async (bounds) => {
+  const fetchWikipediaArticles = useCallback(async (bounds) => {
     const { _southWest, _northEast } = bounds;
-    const url = `https://${language}.wikipedia.org/w/api.php?action=query&list=geosearch&gsradius=10000&gscoord=${_northEast.lat}|${_southWest.lng}&gslimit=50&format=json&origin=*&utf8=1&ll=${_northEast.lat}|${_southWest.lng}&gsnamespace=0`;
+    const url = `https://${language}.wikipedia.org/w/api.php?action=query&list=geosearch&gsradius=10000&gscoord=${(_southWest.lat + _northEast.lat) / 2}|${(_southWest.lng + _northEast.lng) / 2}&gslimit=50&format=json&origin=*&utf8=1`;
 
     try {
       const response = await fetch(url);
@@ -86,7 +86,7 @@ const MapComponent = ({ userLocation, onReadMore, onLocationFound, centerMap, la
       }));
 
       const articlesWithSummaries = await Promise.all(articles.map(async (article) => {
-        const summaryUrl = `https://${language}.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&titles=${encodeURIComponent(article.title)}&format=json&origin=*&utf8=1&ll=${_northEast.lat}|${_southWest.lng}`;
+        const summaryUrl = `https://${language}.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&titles=${encodeURIComponent(article.title)}&format=json&origin=*&utf8=1`;
 
         const summaryResponse = await fetch(summaryUrl);
         const summaryData = await summaryResponse.json();
@@ -96,20 +96,35 @@ const MapComponent = ({ userLocation, onReadMore, onLocationFound, centerMap, la
         return article;
       }));
 
-      setWikiArticles(articlesWithSummaries);
+      setWikiArticles(prevArticles => {
+        const newArticles = articlesWithSummaries.filter(
+          newArticle => !prevArticles.some(prevArticle => prevArticle.title === newArticle.title)
+        );
+        return [...prevArticles, ...newArticles];
+      });
     } catch (error) {
       console.error("Error fetching Wikipedia articles:", error);
     }
-  };
+  }, [language]);
 
-  useMapEvents({
+  const debouncedFetchArticles = useCallback(() => {
+    let timeoutId;
+    return (bounds) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => fetchWikipediaArticles(bounds), 300);
+    };
+  }, [fetchWikipediaArticles]);
+
+  const mapEvents = useMapEvents({
     moveend: () => {
-      fetchWikipediaArticles(map.getBounds());
+      debouncedFetchArticles()(map.getBounds());
+    },
+    zoomend: () => {
+      debouncedFetchArticles()(map.getBounds());
     },
   });
 
   useEffect(() => {
-    // Refetch articles when language changes
     if (map) {
       fetchWikipediaArticles(map.getBounds());
     }
@@ -119,7 +134,7 @@ const MapComponent = ({ userLocation, onReadMore, onLocationFound, centerMap, la
     <>
       {userLocation && <Marker position={userLocation} />}
       {wikiArticles.map((article, index) => (
-        <WikipediaMarker key={index} article={article} onReadMore={onReadMore} language={language}/>
+        <WikipediaMarker key={index} article={article} onReadMore={onReadMore} language={language} />
       ))}
     </>
   );
