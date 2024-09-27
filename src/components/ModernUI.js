@@ -168,11 +168,11 @@ const ModernUI = () => {
       case 'home':
       case 'map':
         return (
-          <div className={`flex-1 flex flex-col p-6 ${textColor}`}>
-            <h2 className="text-2xl font-bold mb-4">{t('map')}</h2>
-            <div className="relative flex-1 flex flex-col">
-              <div className="mb-4 flex items-center">
-                <div className="flex-grow mr-2">
+          <div className={`flex-1 flex flex-col ${textColor}`}>
+            <div className={`fixed top-0 left-0 right-0 z-5 ${bgColor} p-6`}>
+              <h2 className="text-2xl font-bold mb-4">{t('map')}</h2>
+              <div className="flex items-center mb-4">
+                <div className="flex-grow mr-2 relative">
                   <input
                     type="text"
                     placeholder={t('searchLocations')}
@@ -188,14 +188,14 @@ const ModernUI = () => {
                   <Crosshair size={20} />
                 </button>
               </div>
-              <div className="flex-1 relative">
-                <Map 
-                  onReadMore={handleReadMore} 
-                  onLocationFound={handleLocationFound}
-                  centerMap={centerMap}
-                  language={language}
-                />
-              </div>
+            </div>
+            <div className="flex-1 relative mt-32"> {/* Adjust this value based on the height of your fixed header */}
+              <Map 
+                onReadMore={handleReadMore} 
+                onLocationFound={handleLocationFound}
+                centerMap={centerMap}
+                language={language}
+              />
             </div>
           </div>
         );
