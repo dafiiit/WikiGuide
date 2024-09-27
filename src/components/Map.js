@@ -159,14 +159,13 @@ const Map = ({ onReadMore, onLocationFound, centerMap, language}) => {
   }, [onLocationFound]);
 
   return (
-    <div style={{ height: 'calc(100vh - 300px)', width: '100%', position: 'absolute', top: 0, left: 0, zIndex: 0 }}>
-      
+    <div style={{ height: '100%', width: '100%' }}>
       {userLocation && (
         <MapContainer
           center={userLocation}
           zoom={13}
           style={{ height: '100%', width: '100%' }}
-          zoomControl={false} // Disable default zoom control
+          zoomControl={false}
         >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -178,26 +177,9 @@ const Map = ({ onReadMore, onLocationFound, centerMap, language}) => {
             centerMap={centerMap}
             language={language}
           />
-          <ZoomControl position="bottomright" /> {/* Add custom positioned zoom control */}
-          <div className="custom-zoom-controls">
-            {/* Custom CSS will position this div */}
-          </div>
+          <ZoomControl position="bottomright" />
         </MapContainer>
       )}
-      <style jsx>{`
-        .custom-zoom-controls {
-          position: fixed;
-          bottom: 90px;
-          right: 10px;
-          z-index: 1000;
-        }
-        :global(.leaflet-control-zoom) {
-          position: fixed !important;
-          bottom: 90px !important;
-          right: 10px !important;
-          z-index: 1000 !important;
-        }
-      `}</style>
     </div>
   );
 };

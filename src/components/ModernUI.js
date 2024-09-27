@@ -185,8 +185,8 @@ const ModernUI = () => {
       case 'home':
       case 'map':
         return (
-          <div className={`flex-1 flex flex-col ${textColor}`}>
-            <div className={`sticky top-0 z-10 ${bgColor} p-6`}>
+          <div className="flex flex-col h-full">
+            <div className={`${bgColor} p-4`}>
               <h2 className="text-2xl font-bold mb-4">{t('map')}</h2>
               <div className="flex items-center mb-4">
                 <div className="flex-grow mr-2 relative">
@@ -206,7 +206,7 @@ const ModernUI = () => {
                 </button>
               </div>
             </div>
-            <div className="flex-1 relative" ref={mapContainerRef}> 
+            <div className="flex-grow relative" ref={mapContainerRef}> 
               <Map 
                 onReadMore={handleReadMore} 
                 onLocationFound={handleLocationFound}
@@ -281,7 +281,7 @@ const ModernUI = () => {
 
   return (
     <div className={`h-screen ${bgColor} flex flex-col`} style={{ height: 'calc(var(--vh, 1vh) * 100)' }}>
-      <div className="flex-1 overflow-y-auto flex flex-col">
+      <div className="flex-grow overflow-hidden flex flex-col">
         {renderPage()}
       </div>
       {isLoggedIn && (
