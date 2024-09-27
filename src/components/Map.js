@@ -159,7 +159,7 @@ const Map = ({ onReadMore, onLocationFound, centerMap, language}) => {
   }, [onLocationFound]);
 
   return (
-    <div style={{ height: 'calc(100vh - 250px)', width: '100%', position: 'absolute', top: 0, left: 0, zIndex: 0 }}>
+    <div style={{ height: 'calc(100vh - 300px)', width: '100%', position: 'absolute', top: 0, left: 0, zIndex: 0 }}>
       
       {userLocation && (
         <MapContainer
