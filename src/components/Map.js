@@ -1,6 +1,6 @@
 // Map.js
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents, ZoomControl } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -165,9 +165,9 @@ const Map = ({ onReadMore, onLocationFound, centerMap, language}) => {
           center={userLocation}
           zoom={13}
           style={{ height: '100%', width: '100%' }}
+          zoomControl={false} // Disable default zoom control
         >
           <TileLayer
-            //url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png"
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <MapComponent 
@@ -177,8 +177,26 @@ const Map = ({ onReadMore, onLocationFound, centerMap, language}) => {
             centerMap={centerMap}
             language={language}
           />
+          <ZoomControl position="bottomright" /> {/* Add custom positioned zoom control */}
+          <div className="custom-zoom-controls">
+            {/* Custom CSS will position this div */}
+          </div>
         </MapContainer>
       )}
+      <style jsx>{`
+        .custom-zoom-controls {
+          position: fixed;
+          bottom: 90px;
+          right: 10px;
+          z-index: 1000;
+        }
+        :global(.leaflet-control-zoom) {
+          position: fixed !important;
+          bottom: 90px !important;
+          right: 10px !important;
+          z-index: 1000 !important;
+        }
+      `}</style>
     </div>
   );
 };
