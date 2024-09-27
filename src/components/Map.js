@@ -1,5 +1,5 @@
 // Map.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents, ZoomControl } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -7,7 +7,6 @@ import 'leaflet/dist/leaflet.css';
 // Import marker icon images
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-import { useCallback } from 'react'; 
 import { useTranslation } from 'react-i18next'; 
 
 
@@ -45,17 +44,11 @@ const WikipediaMarker = ({ article, onReadMore }) => {
   );
 };
 
-const MapComponent = ({ userLocation, onReadMore, onLocationFound, centerMap, language }) => {
+const MapComponent = ({ userLocation, onReadMore, onLocationFound, centerMap, language, selectedLocation }) => {
   const map = useMap();
   const [wikiArticles, setWikiArticles] = useState([]);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const { t } = useTranslation();
-  
-  useEffect(() => {
-    if (centerMap) {
-      map.setView(centerMap, 13);
-    }
-  }, [centerMap, map]);
 
   const focusUserLocation = useCallback(() => {
     if (userLocation) {
@@ -63,6 +56,12 @@ const MapComponent = ({ userLocation, onReadMore, onLocationFound, centerMap, la
       onLocationFound(userLocation);
     }
   }, [map, userLocation, onLocationFound]);
+  
+  useEffect(() => {
+    if (centerMap) {
+      map.setView(centerMap, 13);
+    }
+  }, [centerMap, map]);
 
   useEffect(() => {
     if (userLocation && isInitialLoad) {
@@ -70,6 +69,12 @@ const MapComponent = ({ userLocation, onReadMore, onLocationFound, centerMap, la
       setIsInitialLoad(false);
     }
   }, [userLocation, focusUserLocation, isInitialLoad]);
+
+  useEffect(() => {
+    if (selectedLocation) {
+      map.setView([selectedLocation.lat, selectedLocation.lon], 13);
+    }
+  }, [selectedLocation, map]);
 
   const fetchWikipediaArticles = useCallback(async (bounds) => {
     const { _southWest, _northEast } = bounds;
@@ -133,6 +138,13 @@ const MapComponent = ({ userLocation, onReadMore, onLocationFound, centerMap, la
   return (
     <>
       {userLocation && <Marker position={userLocation} />}
+      {selectedLocation && (
+        <Marker position={[selectedLocation.lat, selectedLocation.lon]}>
+          <Popup>
+            <h3>{selectedLocation.title}</h3>
+          </Popup>
+        </Marker>
+      )}
       {wikiArticles.map((article, index) => (
         <WikipediaMarker key={index} article={article} onReadMore={onReadMore} language={language} />
       ))}
@@ -140,7 +152,7 @@ const MapComponent = ({ userLocation, onReadMore, onLocationFound, centerMap, la
   );
 };
 
-const Map = ({ onReadMore, onLocationFound, centerMap, language}) => {
+const Map = ({ onReadMore, onLocationFound, centerMap, language, selectedLocation }) => {
   const [userLocation, setUserLocation] = useState(null);
 
   useEffect(() => {
@@ -176,6 +188,7 @@ const Map = ({ onReadMore, onLocationFound, centerMap, language}) => {
             onLocationFound={onLocationFound}
             centerMap={centerMap}
             language={language}
+            selectedLocation={selectedLocation}
           />
           <ZoomControl position="bottomright" />
         </MapContainer>

@@ -1,8 +1,7 @@
 // ModernUI.js
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Plus, Map as MapIcon, Settings, Search, ArrowLeft, FileText, Route, X, User, LogIn, Crosshair } from 'lucide-react';
 import Map from './Map'; // Import the Map component
-import { useCallback } from 'react'; 
 import { useTranslation } from 'react-i18next';
 
 const ModernUI = () => {
@@ -32,6 +31,9 @@ const ModernUI = () => {
   const [language, setLanguage] = useState('en'); 
   const { t, i18n } = useTranslation(); 
   const mapContainerRef = useRef(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchSuggestions, setSearchSuggestions] = useState([]);
+  const [selectedLocation, setSelectedLocation] = useState(null);
 
   const handleMapClick = useCallback((e) => {
     // Verhindern Sie, dass der Klick auf die Karte den Vollbildmodus aktiviert
@@ -52,6 +54,52 @@ const ModernUI = () => {
       setCenterMap([...currentLocation]); // Create a new array to trigger re-render
     }
   }, [currentLocation]);
+
+  const handleSearch = useCallback(async (query) => {
+    if (query.length < 3) {
+      setSearchSuggestions([]);
+      return;
+    }
+
+    const url = `https://${language}.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query)}&limit=5&namespace=0&format=json&origin=*`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      setSearchSuggestions(data[1].map((title, index) => ({
+        title,
+        description: data[2][index],
+        link: data[3][index]
+      })));
+    } catch (error) {
+      console.error("Error fetching search suggestions:", error);
+    }
+  }, [language]);
+
+  const handleSuggestionClick = useCallback(async (suggestion) => {
+    const url = `https://${language}.wikipedia.org/w/api.php?action=query&prop=coordinates&titles=${encodeURIComponent(suggestion.title)}&format=json&origin=*`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      const pages = data.query.pages;
+      const pageId = Object.keys(pages)[0];
+      const coordinates = pages[pageId].coordinates[0];
+
+      if (coordinates) {
+        setSelectedLocation({
+          lat: coordinates.lat,
+          lon: coordinates.lon,
+          title: suggestion.title
+        });
+        setCenterMap([coordinates.lat, coordinates.lon]);
+      }
+    } catch (error) {
+      console.error("Error fetching location coordinates:", error);
+    }
+    setSearchQuery('');
+    setSearchSuggestions([]);
+  }, [language]);
 
   useEffect(() => {
     const mapContainer = mapContainerRef.current;
@@ -193,9 +241,28 @@ const ModernUI = () => {
                   <input
                     type="text"
                     placeholder={t('searchLocations')}
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      handleSearch(e.target.value);
+                    }}
                     className={`w-full py-2 pl-10 pr-4 ${inputBgColor} rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 transition-all duration-300`}
                   />
                   <Search className="absolute left-3 top-2.5 text-gray-500" size={20} />
+                  {searchSuggestions.length > 0 && (
+                    <div className={`absolute z-10 w-full mt-1 ${inputBgColor} rounded-lg shadow-lg`}>
+                      {searchSuggestions.map((suggestion, index) => (
+                        <div
+                          key={index}
+                          className={`p-2 hover:bg-opacity-70 cursor-pointer ${index > 0 ? 'border-t border-gray-200' : ''}`}
+                          onClick={() => handleSuggestionClick(suggestion)}
+                        >
+                          <div className="font-semibold">{suggestion.title}</div>
+                          <div className="text-sm text-gray-500">{suggestion.description}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <button
                   onClick={handleCenterMap}
@@ -206,12 +273,13 @@ const ModernUI = () => {
                 </button>
               </div>
             </div>
-            <div className="flex-grow relative" ref={mapContainerRef}> 
-              <Map 
-                onReadMore={handleReadMore} 
+            <div className="flex-grow relative" ref={mapContainerRef}>
+              <Map
+                onReadMore={handleReadMore}
                 onLocationFound={handleLocationFound}
                 centerMap={centerMap}
                 language={language}
+                selectedLocation={selectedLocation}
               />
             </div>
           </div>
