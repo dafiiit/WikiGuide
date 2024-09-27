@@ -61,6 +61,20 @@ const ModernUI = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const setVH = () => {
+      let vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    };
+
+    setVH();
+    window.addEventListener('resize', setVH);
+
+    return () => {
+      window.removeEventListener('resize', setVH);
+    };
+  }, []);
+
   const handleReadMore = (article) => {
     setFullArticle(article);
     setCurrentPage('article');
@@ -249,12 +263,12 @@ const ModernUI = () => {
   };
 
   return (
-    <div className={`h-screen ${bgColor} flex flex-col`}>
-      <div className="flex-1 overflow-y-hidden flex flex-col">
+    <div className={`h-screen ${bgColor} flex flex-col`} style={{ height: 'calc(var(--vh, 1vh) * 100)' }}>
+      <div className="flex-1 overflow-y-auto flex flex-col">
         {renderPage()}
       </div>
       {isLoggedIn && (
-        <nav className={`${inputBgColor} backdrop-blur-lg p-4`}>
+        <nav className={`${inputBgColor} backdrop-blur-lg p-4 flex-shrink-0`}>
           <div className="flex justify-around relative">
             <div ref={addMenuRef}>
               <button
