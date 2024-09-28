@@ -18,14 +18,19 @@ const ModernUI = () => {
   const [fullArticle, setFullArticle] = useState(null);
   const addMenuRef = useRef(null);
   
+  //Farben
   const bgColor = isDarkMode 
-    ? 'bg-gradient-to-br from-teal-900 to-green-950'
-    : 'bg-gradient-to-br from-teal-400 to-green-700';
+    ? 'bg-gradient-to-br from-black to-[#02451b]'
+    : 'bg-gradient-to-br from-[#23ff38] to-[#02451b]';
 
-  const textColor = isDarkMode ? 'text-gray-200' : 'text-gray-800';
-  const inputBgColor = isDarkMode ? 'bg-gray-700' : 'bg-white bg-opacity-50';
-  const buttonBgColor = isDarkMode ? 'bg-teal-700' : 'bg-teal-500';
-  const buttonHoverColor = isDarkMode ? 'hover:bg-teal-600' : 'hover:bg-teal-400';
+  const textColor = isDarkMode ? 'text-white' : 'text-black';
+  const inputBgColor = isDarkMode ? 'bg-green-700' : 'bg-white bg-opacity-60';
+  const BoxOverlayColor = isDarkMode ? 'bg-green-700' : 'bg-white bg-opacity-80';
+  const MapLowBarColor = isDarkMode ? 'bg-green-800 bg-opacity-50' : 'bg-black bg-opacity-20';
+  
+  const buttonBgColor = isDarkMode ? 'bg-green-700' : 'bg-green-500';
+  const buttonHoverColor = isDarkMode ? 'hover:bg-green-600' : 'hover:bg-green-400';
+
   const [currentLocation, setCurrentLocation] = useState(null);
   const [centerMap, setCenterMap] = useState(null);
   const [language, setLanguage] = useState(navigator.language.split('-')[0] || 'en'); // Standard-Sprache aus den Systemeinstellungen
@@ -203,14 +208,14 @@ const ModernUI = () => {
               placeholder={t('email')}
               value={userCredentials.email}
               onChange={(e) => handleCredentialsChange('email', e.target.value)}
-              className={`w-full py-2 px-4 ${inputBgColor} rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 transition-all duration-300`}
+              className={`w-full py-2 px-4 ${inputBgColor} ${textColor} rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 transition-all duration-300`}
             />
             <input
               type="password"
               placeholder={t('password')}
               value={userCredentials.password}
               onChange={(e) => handleCredentialsChange('password', e.target.value)}
-              className={`w-full py-2 px-4 ${inputBgColor} rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 transition-all duration-300`}
+              className={`w-full py-2 px-4 ${inputBgColor} ${textColor} rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 transition-all duration-300`}
             />
             <button
               onClick={isSignUp ? handleSignUp : handleLogin}
@@ -246,11 +251,11 @@ const ModernUI = () => {
                       setSearchQuery(e.target.value);
                       handleSearch(e.target.value);
                     }}
-                    className={`w-full py-2 pl-10 pr-4 ${inputBgColor} rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 transition-all duration-300`}
+                    className={`w-full py-2 pl-10 pr-4 ${inputBgColor}  rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 transition-all duration-300`}
                   />
-                  <Search className="absolute left-3 top-2.5 text-gray-500" size={20} />
+                  <Search className={`absolute left-3 top-2.5 ${textColor}`} size={20} />
                   {searchSuggestions.length > 0 && (
-                    <div className={`absolute z-20 w-full mt-1 ${inputBgColor} rounded-lg shadow-lg`}>
+                    <div className={`absolute z-20 w-full mt-1 ${BoxOverlayColor} rounded-lg shadow-lg`}>
                       {searchSuggestions.map((suggestion, index) => (
                         <div
                           key={index}
@@ -308,7 +313,7 @@ const ModernUI = () => {
             <h2 className="text-2xl font-bold mb-4">{t('settings')}</h2> {/* Übersetzung für "Settings" */}
             <div className={`${inputBgColor} p-4 rounded-lg mb-4`}>
               <h3 className="text-xl font-semibold mb-2">{t('userProfile')}</h3> {/* Übersetzung für "User Profile" */}
-              <p>{t('email')}: {userCredentials.email}</p>
+              <p className={textColor}>{t('email')}: {userCredentials.email}</p>
               <button
                 onClick={handleLogout}
                 className={`mt-2 py-2 px-4 ${buttonBgColor} ${textColor} rounded-lg ${buttonHoverColor} transition-colors duration-300`}
@@ -353,7 +358,7 @@ const ModernUI = () => {
         {renderPage()}
       </div>
       {isLoggedIn && (
-        <nav className={`${inputBgColor} backdrop-blur-lg p-4 flex-shrink-0`}>
+        <nav className={`${MapLowBarColor} backdrop-blur-lg p-4 flex-shrink-0`}>
           <div className="flex justify-around relative">
             <div ref={addMenuRef}>
               <button
@@ -364,7 +369,7 @@ const ModernUI = () => {
               </button>
               
               {isAddMenuOpen && (
-                <div className={`absolute bottom-full left-0 mb-2 p-2 ${inputBgColor} rounded-lg shadow-lg flex space-x-2`}>
+                <div className={`absolute bottom-full left-0 mb-2 p-2 ${BoxOverlayColor} rounded-lg shadow-lg flex space-x-2`}>
                   <button
                     onClick={() => {
                       setIsArticleCreatorOpen(true);

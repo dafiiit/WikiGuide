@@ -7,7 +7,7 @@ import 'leaflet/dist/leaflet.css';
 // Import marker icon images
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-import { useTranslation } from 'react-i18next'; 
+import { useTranslation } from 'react-i18next';
 
 
 // Set up the default icon
@@ -56,7 +56,7 @@ const MapComponent = ({ userLocation, onReadMore, onLocationFound, centerMap, la
       onLocationFound(userLocation);
     }
   }, [map, userLocation, onLocationFound]);
-  
+
   useEffect(() => {
     if (centerMap) {
       map.setView(centerMap, 13);
@@ -175,16 +175,16 @@ const Map = ({ onReadMore, onLocationFound, centerMap, language, selectedLocatio
       {userLocation && (
         <MapContainer
           center={userLocation}
-          zoom={13}
+          zoom={20}
           style={{ height: '100%', width: '100%' }}
           zoomControl={false}
         >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          <MapComponent 
-            userLocation={userLocation} 
-            onReadMore={onReadMore} 
+          <MapComponent
+            userLocation={userLocation}
+            onReadMore={onReadMore}
             onLocationFound={onLocationFound}
             centerMap={centerMap}
             language={language}
