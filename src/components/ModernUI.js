@@ -28,7 +28,7 @@ const ModernUI = () => {
   const buttonHoverColor = isDarkMode ? 'hover:bg-teal-600' : 'hover:bg-teal-400';
   const [currentLocation, setCurrentLocation] = useState(null);
   const [centerMap, setCenterMap] = useState(null);
-  const [language, setLanguage] = useState('en'); 
+  const [language, setLanguage] = useState(navigator.language.split('-')[0] || 'en'); // Standard-Sprache aus den Systemeinstellungen
   const { t, i18n } = useTranslation(); 
   const mapContainerRef = useRef(null);
   const [searchQuery, setSearchQuery] = useState('');
