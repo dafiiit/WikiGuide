@@ -22,12 +22,10 @@ const ModernUI = () => {
   const bgColor = isDarkMode 
     ? 'bg-gradient-to-br from-black to-[#02451b]'
     : 'bg-gradient-to-br from-[#23ff38] to-[#02451b]';
-
   const textColor = isDarkMode ? 'text-white' : 'text-black';
   const inputBgColor = isDarkMode ? 'bg-green-700' : 'bg-white bg-opacity-60';
   const BoxOverlayColor = isDarkMode ? 'bg-green-700' : 'bg-white bg-opacity-80';
   const MapLowBarColor = isDarkMode ? 'bg-green-800 bg-opacity-50' : 'bg-black bg-opacity-20';
-  
   const buttonBgColor = isDarkMode ? 'bg-green-700' : 'bg-green-500';
   const buttonHoverColor = isDarkMode ? 'hover:bg-green-600' : 'hover:bg-green-400';
 
@@ -45,10 +43,19 @@ const ModernUI = () => {
     e.stopPropagation();
   }, []);
 
+  // Initialisiere die Sprache beim Laden der Komponente
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, []);
+
+  // Ändere die Sprache, wenn sich die language-Variable ändert
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [language, i18n]);
+
   const handleLanguageChange = useCallback((newLanguage) => {
     setLanguage(newLanguage);
-    i18n.changeLanguage(newLanguage); // Change the language in i18next
-  }, [i18n]);
+  }, []);
 
   const handleLocationFound = useCallback((location) => {
     setCurrentLocation(location);
@@ -239,7 +246,7 @@ const ModernUI = () => {
       case 'map':
         return (
           <div className="flex flex-col h-full">
-            <div className={`${bgColor} p-4 relative z-10`}>
+            <div className={`${bgColor} p-4 relative z-10 ${textColor}` }>
               <h2 className="text-2xl font-bold mb-4">{t('map')}</h2>
               <div className="flex items-center mb-4">
                 <div className="flex-grow mr-2 relative">
@@ -251,7 +258,7 @@ const ModernUI = () => {
                       setSearchQuery(e.target.value);
                       handleSearch(e.target.value);
                     }}
-                    className={`w-full py-2 pl-10 pr-4 ${inputBgColor}  rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 transition-all duration-300`}
+                    className={`w-full py-2 pl-10 pr-4 ${inputBgColor} rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 transition-all duration-300`}
                   />
                   <Search className={`absolute left-3 top-2.5 ${textColor}`} size={20} />
                   {searchSuggestions.length > 0 && (
